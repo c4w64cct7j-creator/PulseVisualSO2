@@ -19,21 +19,24 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Install Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.9'
-
       - name: Unpack Android project
         run: |
           unzip PulseVisualSO2-Android-Prototype.zip -d source
           test -f source/PulseVisualSO2/app/build.gradle
 
+      - name: Make gradlew executable
+        run: |
+          cd source/PulseVisualSO2
+          chmod +x gradlew || true
+
       - name: Build debug APK
-        run: gradle -p source/PulseVisualSO2 assembleDebug
+        run: |
+          cd source/PulseVisualSO2
+          if [ -f "./gradlew" ]; then
+            ./gradlew assembleDebug
+          else
+            gradle assembleDebug
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
